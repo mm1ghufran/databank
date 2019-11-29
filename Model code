@@ -1,0 +1,141 @@
+model(linear);
+
+//******************
+//**  HOUSEHOLDS  **
+//******************
+
+c_n =  (1/1+h)*c_n(+1)+(h/1+h)*c_n(-1)+ (1-h/sigma_c*(1+h))*(t_c0/1+t_c0)*(t_c(+1)-t_c)- (1-h/sigma_c*(1+h))*(r-pi(+1))+(1-h/sigma_c*(1+h))*(zpref-zpref(+1));
+// (1) consumption Eular Equation;
+
+c_s = (1/1+t_c0)*((((w0*n0)/y0)*((1-t_s0)*(w0+ns)-t_s0*t_s)+ (tr0_y0*tr))*(1/c_s0_y0)-t_c0*t_c);
+// (2) shadow segment household consumption;
+
+c = c_n*(1-mu)*(c_n0_c0)+ c_s*mu*(c_s0_c0);
+// (3) aggregate consumption;
+
+w = (beta/1+beta)*w(+1)+ (1/1+beta)*w(-1) + pi(+1)*(beta/1+beta) - (pi*(1+beta)*gam_w/1+beta) + (pi(-1)*(gam_w/1+beta)) - ((1/1+beta)*(1-beta*theta_w)*(1-theta_w)/theta_w*(1+phi*(1+lambda_w)/lambda_w)*(w-mrs));
+// (4) wage dynamics;
+
+mrs = phi*n+(sigma_c/1-h)*(c_n-h*c_n(-1))+ t_n*(t_n0/1-t_n0) + t_c*(t_c0/1+t_c0)+ zn;
+// (5) Marginal Rate of Substitution between labour and consumption;
+
+inv = q*(1/psi*(1+beta))+ (1/1+beta)*inv(-1)+ (beta/1+beta)*inv(+1)- (1/1+beta)*(beta*zInv(+1)-zInv);
+// (6) Investment Eular Equation;
+
+q = (rk0*(1-t_k0)/(1-delta0)+(rk0*(1-t_k0)))*(rk(+1)-(t_k0/1-t_k0)*t_k(+1))+ (1-delta0/1-delta0+rk0*(1-t_k0))*q(+1)+pi(+1)-r + eps_q;
+// (7)shadow cost of capital;
+
+u =  (1/kappa_u)*(rk -(t_k0/1-t_k0)*t_k);
+// (8) capital utilization;
+
+kp = (1-delta0)*kp(-1)+ delta0*inv;
+// (9) Capital Law of motion;
+
+
+//***********************
+//**  PRODUCTION SIDE  **
+//***********************
+
+mc = (1-alpha)*w + alpha*rk -zA -zeta*kg(-1);
+// (10) marginal cost;
+
+nr = kp(-1) + u + rk -w;
+// (11) labour demand;
+
+ns = kp(-1) + u + rk - w0;
+// (12) shadow segment labour demand;
+
+n = eta*nr*nr0_n0 + (1-eta)*ns*ns0_n0;
+// (13) labour demand;
+
+pi = pi(+1)*(beta/1+beta*gam_p)+ (gam_p/1+beta*gam_p)*pi(-1)+((1-beta*theta_p)*(1-theta_p)/(1+beta*gam_p)* theta_p)*(mc+epscp);
+// (14) phillips curve;
+
+
+//****************************
+//** Fiscal Authority **
+//****************************
+
+gc = (-rho_gy)*y(-1)-rho_gb*b(-1)+zgc;
+// (15) Government Spending;
+
+gi = (-rho_giy)*y(-1)-rho_gib*b(-1)+ zgi;
+// (16) government investment;
+
+tr = n*(-rho_trn)-b(-1)*rho_trb+ ztr;
+// (17) government transfers;
+
+t_c = rho_tcy*y(-1)+ rho_tcb*b(-1)+zt_c;
+// (18) sales tax rate;
+
+t_n = rho_tny*y(-1)+rho_tnb*b(-1)+zt_n;
+// (19) labour income tax rate;
+
+t_k = rho_tky*y(-1)+rho_tkb*b(-1)+zt_k;
+// (20) capital tax rate;
+
+t_s = rho_tsy*y(-1)+ rho_tsb*b(-1)+zt_s;
+// (21) shadow segment tax rate;
+
+kg = (1-delta0)*kg(-1)+delta0*gi;
+// (22) public capital law of motion;
+
+b0_y0*b = tr0_y0*tr + b0_y0*(1/beta)*(b(-1)+r(-1)-pi)+ gc0_y0*gc + gi0_y0*gi - t_c0*c0_y0*(t_c+c)-(t_n0*(w0*nr0/y0))*(nr+w+t_n)-rk0*t_k0*k0_y0*(kp(-1)+u+rk+t_k)-(t_s0*(w0*ns0/y0))*(ns+w0+t_s);
+// (23) government budget constraints;
+
+
+//*****************************
+//** Monetary Authority **
+//*****************************
+
+r = rho_r*r(-1) + (1-rho_r)*(kappa_pi*pi + kappa_y*y) + epsM;
+// (24) Taylor rule;
+
+//*****************************
+//** Aggregates and Market Clearing **
+//*****************************
+
+y = xi*(alpha*kp(-1)+alpha*u+(1-alpha)*n + zA + zeta*kg(-1));
+// (25) production function;
+
+zA = rho_a*zA(-1) + epsA;
+// (26) TFP shock;
+
+y = (c0_inv0)*c + (delta0*k0_y0)*inv + (gc0_y0)*gc + gi0_y0*gi +u*(1-t_k0)*rk0*(k0_y0)+ (1-c0/c0-delta0*k0_y0-gc0_y0-gi0_y0-(1-t_k0)*rk0*k0_y0);
+// (27) goods market clearing;
+
+//*****************************
+//** Shocks **
+//*****************************
+
+zgc = rho_g*zgc(-1) - epsG;
+// (28) Public spending shock;
+
+zgi = rho_gi*zgi(-1)+epsG_i;
+// (29) government investment shock;
+
+zpref = rho_pref*zpref(-1) + epsPref;
+// (30) Preference shock;
+
+zInv = rho_Inv*zInv(-1) + epsI;
+// (31) Investment shock;
+
+zn = rho_n*zn(-1)+epsn;
+// (32) labour supply shock;
+
+zt_n = rho_tn*zt_n(-1)+ epst_n;
+// (33) labour tax rate shock;
+
+zt_c = rho_tc*zt_c(-1)+epst_c;
+// (34) sales tax rate shock;
+
+zt_k = rho_tk*zt_k(-1)+epst_k;
+// (35) capital tax rate shock;
+
+zt_s = rho_ts*zt_s(-1)+epst_s;
+// (36) shadow segment tax rate shock;
+
+ztr = rho_tr*ztr(-1)+epstr;
+// (38) transfer shock;
+
+end;
